@@ -7,8 +7,8 @@ import {
 } from 'typeorm';
 
 @Entity('customers')
-@PrimaryGeneratedColumn('uuid')
 class Customer {
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()

@@ -38,7 +38,7 @@ export default class CreateOrders1589759496105 implements MigrationInterface {
       }),
     );
     await queryRunner.createForeignKey(
-      'customers',
+      'orders',
       new TableForeignKey({
         name: 'CustomerId',
         columnNames: ['customer_id'],
@@ -52,6 +52,6 @@ export default class CreateOrders1589759496105 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropForeignKey('customers', 'CustomerId');
-    await queryRunner.dropTable('orders');
+    await queryRunner.dropTable('customers');
   }
 }
