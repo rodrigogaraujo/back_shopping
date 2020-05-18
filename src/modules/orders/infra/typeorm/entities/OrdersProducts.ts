@@ -6,29 +6,28 @@ import {
   JoinColumn,
   PrimaryGeneratedColumn,
   ManyToOne,
-  ManyToMany,
 } from 'typeorm';
 
 import Order from '@modules/orders/infra/typeorm/entities/Order';
 import Product from '@modules/products/infra/typeorm/entities/Product';
 
-@Entity('order_products')
+@Entity('orders_products')
 class OrdersProducts {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Order, order => order.id)
+  @ManyToOne(() => Order)
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @ManyToMany(() => Product)
+  @ManyToOne(() => Product)
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @Column('uuid')
+  @Column()
   product_id: string;
 
-  @Column('uuid')
+  @Column()
   order_id: string;
 
   @Column()

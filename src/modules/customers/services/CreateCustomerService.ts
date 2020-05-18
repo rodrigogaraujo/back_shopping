@@ -20,7 +20,7 @@ class CreateCustomerService {
   public async execute({ name, email }: IRequest): Promise<Customer> {
     const customerEmail = await this.customersRepository.findByEmail(email);
 
-    if (!customerEmail) {
+    if (customerEmail) {
       throw new AppError('Email já cadastrado');
     }
 

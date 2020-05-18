@@ -2,7 +2,6 @@ import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export default class CreateProducts1589759145633 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
     await queryRunner.createTable(
       new Table({
         name: 'products',
@@ -21,10 +20,12 @@ export default class CreateProducts1589759145633 implements MigrationInterface {
           {
             name: 'price',
             type: 'decimal',
+            precision: 10,
+            scale: 2,
           },
           {
             name: 'quantity',
-            type: 'numeric',
+            type: 'int',
           },
           {
             name: 'created_at',

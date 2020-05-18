@@ -12,12 +12,6 @@ interface IProduct {
   quantity: number;
 }
 
-interface IProductRes {
-  product_id: string;
-  price: number;
-  quantity: number;
-}
-
 interface IRequest {
   customer_id: string;
   products: IProduct[];
@@ -26,7 +20,7 @@ interface IRequest {
 @injectable()
 class CreateProductService {
   constructor(
-    @inject('CustomersRepository')
+    @inject('OrdersRepository')
     private ordersRepository: IOrdersRepository,
 
     @inject('ProductsRepository')
@@ -39,32 +33,36 @@ class CreateProductService {
   public async execute({ customer_id, products }: IRequest): Promise<Order> {
     const customer = await this.customersRepository.findById(customer_id);
     if (!customer) {
-      throw new AppError('Usuário não encontrado');
+      throw new AppError('Cliente não encontrado');
     }
-    const productsArr: IProductRes[] = [];
 
-    products.forEach(async product => {
-      const qnt = product.quantity;
-      const { id, price, quantity } = await this.productsRepository.findById(
-        product.id,
-      );
-      if (!id) {
-        throw new AppError('Produto não encontrado');
+    const productsPrice = await this.productsRepository.findAllById(
+      products.map(product => ({ id: product.id })),
+    );
+    if (products.length !== productsPrice.length) {
+      throw new AppError('Produto não encontrado');
+    }
+
+    products.forEach(product => {
+      const databaseQuantity = productsPrice.find(({ id }) => id === product.id)
+        ?.quantity;
+
+      if ((databaseQuantity || 0) < product.quantity) {
+        throw new AppError('Estoque insuficiente');
       }
-      if (qnt > quantity) {
-        throw new AppError('Produto não tem estoque suficiente');
-      }
-      Object.assign(product, {
-        product_id: id,
-        price,
-        quantity: product.quantity,
-      });
-      products.push(product);
     });
+
     const order = await this.ordersRepository.create({
       customer,
-      products: productsArr,
+      products: products.map(product => ({
+        product_id: product.id,
+        price: productsPrice.find(({ id }) => id === product.id)?.price || 0,
+        quantity: product.quantity,
+      })),
     });
+
+    await this.productsRepository.updateQuantity(products);
+
     return order;
   }
 }
